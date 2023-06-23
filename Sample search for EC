@@ -1,0 +1,25 @@
+import requests
+from bs4 import BeautifulSoup
+
+url = 'https://example.com'
+search_query = 'your query here'
+
+response = requests.get(url)
+soup = BeautifulSoup(response.content, 'html.parser')
+
+search_bar = soup.find('input', {'name': 'search'})
+search_bar['value'] = search_query
+
+search_button = soup.find('button', {'type': 'submit'})
+search_results = requests.get(url + search_button['formaction'])
+
+search_soup = BeautifulSoup(search_results.content, 'html.parser')
+proposal_table = search_soup.find('table', {'class': 'proposal-table'})
+proposal_status_cells = proposal_table.find_all('td', {'class': 'proposal-status'})
+
+ec_granted_proposals = 0
+for cell in proposal_status_cells:
+    if 'EC Granted' in cell.text:
+        ec_granted_proposals += 1
+
+print(f'Total EC granted proposals: {ec_granted_proposals}')
